@@ -14,8 +14,8 @@ A modern, interactive Streamlit web application for predicting cardiovascular di
 
 1. **Clone the repository:**
    ```bash
-   git clone <your-repo-url>
-   cd Cardiovascular-Disease-Predictor
+   git clone https://github.com/HAar6/Cardiovascular-Disease-Risk-Predictor-Har6.git
+   cd Cardiovascular-Disease-Risk-Predictor-Har6
    ```
 
 2. **Install dependencies:**
@@ -27,12 +27,6 @@ A modern, interactive Streamlit web application for predicting cardiovascular di
 
 Run the Streamlit app:
 ```bash
-streamlit run app.py
-```
-
-Or if you're in the project directory:
-```bash
-cd Cardiovascular-Disease-Predictor
 streamlit run app.py
 ```
 
@@ -78,10 +72,12 @@ The application requires 13 patient parameters:
 ## Project Structure
 
 ```
-Cardiovascular-Disease-Predictor/
+Cardiovascular-Disease-Risk-Predictor-Har6/
 ├── app.py                 # Main Streamlit application
 ├── requirements.txt      # Python dependencies
 ├── README.md            # Project documentation
+├── SETUP.md             # Setup instructions
+├── GITHUB_UPLOAD.md     # GitHub upload guide
 └── .gitignore           # Git ignore file
 ```
 
