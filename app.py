@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score
 import altair as alt
@@ -527,7 +528,7 @@ def train_model(data):
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
     
-    model = MLPClassifier(
+    base_model = MLPClassifier(
         hidden_layer_sizes=(8, 4),
         activation='relu',
         solver='adam',
@@ -536,6 +537,8 @@ def train_model(data):
         batch_size=10,
         random_state=42
     )
+    
+    model = CalibratedClassifierCV(estimator=base_model, method='sigmoid', cv=5)
     
     with st.spinner('🔄 Training neural network model...'):
         model.fit(X_train_scaled, y_train)
@@ -686,20 +689,22 @@ def main():
         
         st.markdown('</div>', unsafe_allow_html=True)
         
-        # Convert inputs to model format
-        sex_val = 1 if sex == "Male" else 0
-        cp_val = ["Typical Angina", "Atypical Angina", "Non-anginal Pain", "Asymptomatic"].index(cp)
-        fbs_val = 1 if fbs == "Yes" else 0
-        restecg_val = ["Normal", "ST-T Wave Abnormality", "Left Ventricular Hypertrophy"].index(restecg)
-        exang_val = 1 if exang == "Yes" else 0
-        slope_val = ["Upsloping", "Flat", "Downsloping"].index(slope)
-        thal_val = ["Normal", "Fixed Defect", "Reversible Defect"].index(thal) + 1
+        # Convert inputs to model format (aligned with Cleveland dataset encoding)
+        sex_val = 1.0 if sex == "Male" else 0.0
+        cp_val = float(["Typical Angina", "Atypical Angina", "Non-anginal Pain", "Asymptomatic"].index(cp) + 1)
+        fbs_val = 1.0 if fbs == "Yes" else 0.0
+        restecg_val = float(["Normal", "ST-T Wave Abnormality", "Left Ventricular Hypertrophy"].index(restecg))
+        exang_val = 1.0 if exang == "Yes" else 0.0
+        slope_val = float(["Upsloping", "Flat", "Downsloping"].index(slope) + 1)
+        
+        thal_map = {"Normal": 3.0, "Fixed Defect": 6.0, "Reversible Defect": 7.0}
+        thal_val = thal_map[thal]
         
         # Predict button
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("🔮 Get Cardiovascular Disease Prediction", type="primary", use_container_width=True):
-            input_data = np.array([[age, sex_val, cp_val, trestbps, chol, fbs_val, restecg_val,
-                                   thalach, exang_val, oldpeak, slope_val, ca, thal_val]])
+            input_data = np.array([[float(age), sex_val, cp_val, float(trestbps), float(chol), fbs_val, restecg_val,
+                                   float(thalach), exang_val, float(oldpeak), slope_val, float(ca), thal_val]])
             
             with st.spinner("🔍 Analyzing patient data with AI..."):
                 input_scaled = scaler.transform(input_data)
